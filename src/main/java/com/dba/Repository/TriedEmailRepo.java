@@ -1,6 +1,6 @@
 package com.dba.Repository;
 
-import FileManager.FileManager.Entity.TriedEmail;
+import com.dba.Entity.TriedEmail;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

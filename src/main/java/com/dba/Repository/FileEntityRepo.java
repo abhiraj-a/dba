@@ -1,6 +1,7 @@
 package com.dba.Repository;
 
-import FileManager.FileManager.Entity.FileEntity;
+
+import com.dba.Entity.FileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-public interface FileEntityRepo extends JpaRepository<FileEntity , UUID> {
+public interface FileEntityRepo extends JpaRepository<FileEntity, UUID> {
 
     List<FileEntity> findAllByOwnerId(UUID id);
 

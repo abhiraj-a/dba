@@ -43,23 +43,27 @@ public class TransferController {
                 .build());
     }
 
-    @GetMapping("/user/{emaail}")
+    @GetMapping("/user/{email}")
     public ResponseEntity<?> findTranferViaEmail(@PathVariable("email") String t){
         User u = userRepo.findByEmail(t).orElseThrow(UserNotFoundException::new);
-        FileTransfer transfer = fileTransferRepo.findAllByOwner(u).orElseThrow(TransferNotFoundException::new);
-        List<FileEntity> fileEntities = transfer.getFiles();
-        return ResponseEntity.ok(FileTransferDTO.builder()
-                .verificationCode(transfer.getVerificationCode())
-                .transferId(transfer.getId())
-                .expiresAt(transfer.getExpiresAt())
-                .fileMetaDataList(transfer.getFiles().stream().map(ft-> FileTransferDTO.FileMetaData.builder()
-                        .id(ft.getId())
-                        .fileSize(ft.getFileSize())
-                        .originalFileName(ft.getOriginalFileName())
-                        .contentType(ft.getContentType())
-                        .build()).toList())
-                .fileCount(transfer.getFiles().size())
-                .build());
+        List<FileTransfer> transfers = fileTransferRepo.findAllByOwner(u).orElseThrow(TransferNotFoundException::new);
+
+        return ResponseEntity.ok(transfers.stream().map(transfer ->
+                FileTransferDTO.builder()
+                        .verificationCode(transfer.getVerificationCode())
+                        .transferId(transfer.getId())
+                        .expiresAt(transfer.getExpiresAt())
+                        .fileCount(transfer.getFiles().size())
+                        .fileMetaDataList(transfer.getFiles().stream().map(file ->
+                                FileTransferDTO.FileMetaData.builder()
+                                        .id(file.getId())
+                                        .fileSize(file.getFileSize())
+                                        .originalFileName(file.getOriginalFileName())
+                                        .contentType(file.getContentType())
+                                        .build()
+                        ).toList())
+                        .build()
+        ).toList());
     }
 
 }
