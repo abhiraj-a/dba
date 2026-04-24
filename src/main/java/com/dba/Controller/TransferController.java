@@ -22,7 +22,7 @@ public class TransferController {
 
     private final UserRepo userRepo;
     private final FileTransferRepo fileTransferRepo;
-    @GetMapping("/user/via-id")
+    @PostMapping("/user/via-id")
     public ResponseEntity<?> findTranfer(@RequestBody Dto dto){
         FileTransfer transfer = fileTransferRepo.findByTransferId(dto.getString()).orElseThrow(TransferNotFoundException::new);
         List<FileEntity> fileEntities = transfer.getFiles();
@@ -41,7 +41,7 @@ public class TransferController {
                 .build());
     }
 
-    @GetMapping("/user/via-email}")
+    @PostMapping("/user/via-email")
     public ResponseEntity<?> findTranferViaEmail(@RequestBody Dto dto){
         User u = userRepo.findByEmail(dto.getString()).orElseThrow(UserNotFoundException::new);
         List<FileTransfer> transfers = fileTransferRepo.findAllByOwner(u).orElseThrow(TransferNotFoundException::new);

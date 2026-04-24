@@ -15,7 +15,7 @@ public class UserController {
 
     private final UserRepo userRepo;
 
-    @GetMapping("/get/via-email")
+    @PostMapping("/get/via-email")
     public ResponseEntity<?> getUser(@RequestBody Dto dto){
         User user = userRepo.findByEmail(dto.getString()).orElseThrow(UserNotFoundException::new);
         return ResponseEntity.ok(user);
@@ -29,20 +29,17 @@ public class UserController {
         userRepo.saveAndFlush(user);
         return ResponseEntity.ok(user);
     }
-    @PostMapping("/update-credits/via-email/deduct//{credits}")
+    @PostMapping("/update-credits/via-email/deduct/{credits}")
     public ResponseEntity<?> updateCreditsd(@RequestBody Dto dto,@PathVariable("credits")int credits){
         User user = userRepo.findByEmail(dto.getString()).orElseThrow(UserNotFoundException::new);
         int c = user.getCredits();
         if(credits<c) {
-            user.setCredits(c + credits);
+            user.setCredits(c - credits);
             userRepo.saveAndFlush(user);
         }else {
             throw new RuntimeException();
         }
         return ResponseEntity.ok(user);
     }
-
-
-
 
 }
