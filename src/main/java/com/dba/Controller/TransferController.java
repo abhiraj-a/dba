@@ -1,6 +1,7 @@
 package com.dba.Controller;
 
 import com.dba.DTO.FileTransferDTO;
+import com.dba.DTO.Dto;
 import com.dba.Entity.FileEntity;
 import com.dba.Entity.FileTransfer;
 import com.dba.Entity.User;
@@ -10,10 +11,7 @@ import com.dba.Repository.FileTransferRepo;
 import com.dba.Repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,9 +22,9 @@ public class TransferController {
 
     private final UserRepo userRepo;
     private final FileTransferRepo fileTransferRepo;
-    @GetMapping("/user/{transferId}")
-    public ResponseEntity<?> findTranfer(@PathVariable("transferId") String t){
-        FileTransfer transfer = fileTransferRepo.findByTransferId(t).orElseThrow(TransferNotFoundException::new);
+    @GetMapping("/user/via-id")
+    public ResponseEntity<?> findTranfer(@RequestBody Dto dto){
+        FileTransfer transfer = fileTransferRepo.findByTransferId(dto.getString()).orElseThrow(TransferNotFoundException::new);
         List<FileEntity> fileEntities = transfer.getFiles();
 
         return ResponseEntity.ok(FileTransferDTO.builder()
@@ -43,9 +41,9 @@ public class TransferController {
                 .build());
     }
 
-    @GetMapping("/user/{email}")
-    public ResponseEntity<?> findTranferViaEmail(@PathVariable("email") String t){
-        User u = userRepo.findByEmail(t).orElseThrow(UserNotFoundException::new);
+    @GetMapping("/user/via-email}")
+    public ResponseEntity<?> findTranferViaEmail(@RequestBody Dto dto){
+        User u = userRepo.findByEmail(dto.getString()).orElseThrow(UserNotFoundException::new);
         List<FileTransfer> transfers = fileTransferRepo.findAllByOwner(u).orElseThrow(TransferNotFoundException::new);
 
         return ResponseEntity.ok(transfers.stream().map(transfer ->
