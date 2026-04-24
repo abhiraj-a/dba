@@ -1,0 +1,47 @@
+package com.dba.Repository;
+
+
+import com.dba.Entity.FileTransfer;
+import com.dba.Entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.lang.ScopedValue;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface FileTransferRepo extends JpaRepository<FileTransfer, UUID> {
+    Optional<FileTransfer> findByVerificationCode(String verificationCode);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(
+            value = "DELETE FROM file_transfer_files WHERE file_id IN (:fileIds)",
+            nativeQuery = true
+    )
+    int deleteFileReferences(@Param("fileIds") List<UUID> fileIds);
+
+
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(
+            value = """
+        DELETE FROM file_transfer_files
+        WHERE file_id IN (
+            SELECT id FROM files WHERE owner_id = :userId
+        )
+        """,
+            nativeQuery = true
+    )
+    int deleteJoinRowsByUser(@Param("userId") UUID userId);
+    List<FileTransfer> findAllByFiles_Id(UUID id);
+
+    Optional<FileTransfer> findByTransferId(String transferId);
+
+    List<FileTransfer> findAllByOwnerAndExpiresAtIsAfter(User user, Instant instant);
+
+    Optional<FileTransfer>  findAllByOwner(User u);
+}
