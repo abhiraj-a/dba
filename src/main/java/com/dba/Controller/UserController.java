@@ -10,6 +10,7 @@ import com.dba.Repository.FileTransferRepo;
 import com.dba.Repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class UserController {
 
     @GetMapping("/get-all")
     public ResponseEntity<?> getall(){
-        return ResponseEntity.ok(userRepo.findAll());
+        return ResponseEntity.ok(userRepo.findAllByIsDeletedFalse());
     }
 
     @PostMapping("/get/via-email")
@@ -57,8 +58,9 @@ public class UserController {
     }
 
     @DeleteMapping("/delete-user")
-    public ResponseEntity<?> updateCreditsd(@RequestBody Dto dto) {
-        User user = userRepo.findByEmail(dto.getString()).orElseThrow(UserNotFoundException::new);
+    @Transactional
+    public ResponseEntity<?> delete(@RequestBody Dto dto) {
+        User user = userRepo.findByEmailAndIsDeletedFalse(dto.getString()).orElseThrow(UserNotFoundException::new);
         String clerkId = user.getClerkId();
 
         int joinRows = fileTransferRepo.deleteJoinRowsByUser(user.getId());
@@ -78,8 +80,9 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/get-deleted")
     public ResponseEntity<?> findAllDeleted(){
-        List<User> users = userRepo.findAllByDeletedTrue();
+        List<User> users = userRepo.findAllByIsDeletedTrue();
         return ResponseEntity.ok(users);
     }
 
