@@ -42,4 +42,6 @@ public interface FileTransferRepo extends JpaRepository<FileTransfer, UUID> {
     List<FileTransfer> findAllByOwnerAndExpiresAtIsAfter(User user, Instant instant);
 
     Optional<List<FileTransfer>>  findAllByOwner(User u);
+
+    Optional<FileTransfer> findByOwner(User u);
 }

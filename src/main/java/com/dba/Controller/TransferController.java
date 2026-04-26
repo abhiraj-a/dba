@@ -63,5 +63,27 @@ public class TransferController {
                         .build()
         ).toList());
     }
+    @PostMapping("/user/revoke-transfer")
+    public ResponseEntity<?> revoke(@RequestBody Dto dto){
+        User u = userRepo.findByEmail(dto.getString()).orElseThrow(UserNotFoundException::new);
+        FileTransfer transfer = fileTransferRepo.findByOwner(u).orElseThrow(TransferNotFoundException::new);
+        transfer.setRevoked(true);
+        fileTransferRepo.saveAndFlush(transfer);
+      return  ResponseEntity.ok( FileTransferDTO.builder()
+                .verificationCode(transfer.getVerificationCode())
+                .transferId(transfer.getId())
+                .expiresAt(transfer.getExpiresAt())
+                .fileCount(transfer.getFiles().size())
+                .fileMetaDataList(transfer.getFiles().stream().map(file ->
+                        FileTransferDTO.FileMetaData.builder()
+                                .id(file.getId())
+                                .fileSize(file.getFileSize())
+                                .originalFileName(file.getOriginalFileName())
+                                .contentType(file.getContentType())
+                                .build()
+                ).toList())
+                .build()  );
+
+    }
 
 }
